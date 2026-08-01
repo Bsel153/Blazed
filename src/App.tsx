@@ -12,7 +12,7 @@ export default function App() {
   return (
     <LocationProvider>
       <LikesProvider>
-        <BrowserRouter>
+        <BrowserRouter basename={import.meta.env.BASE_URL}>
           <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
             <NavBar />
             <Routes>
