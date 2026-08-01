@@ -78,7 +78,7 @@ export default function RewardsPage() {
         <h2 className="text-sm font-semibold text-neutral-700 dark:text-neutral-200 mb-3">Your dispensaries</h2>
         {visited.length === 0 ? (
           <p className="text-sm text-neutral-500">
-            No purchases logged yet — scan a deal's QR code to start earning points.
+            No purchases logged yet — scan your receipt QR code to start earning points.
           </p>
         ) : (
           <div className="flex flex-col gap-4">

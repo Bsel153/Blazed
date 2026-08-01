@@ -1,21 +1,12 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Deal } from '../types';
 import { getDispensary, getStrain } from '../data/mockData';
 import StrainTypeBadge from './StrainTypeBadge';
 import ShareButton from './ShareButton';
-import DealQrCode from './DealQrCode';
 
-interface DealCardProps {
-  deal: Deal;
-  showProgramBadge?: boolean;
-  enableQr?: boolean;
-}
-
-export default function DealCard({ deal, showProgramBadge = true, enableQr = true }: DealCardProps) {
+export default function DealCard({ deal, showProgramBadge = true }: { deal: Deal; showProgramBadge?: boolean }) {
   const dispensary = getDispensary(deal.dispensaryId);
   const strain = getStrain(deal.strainId);
-  const [showQr, setShowQr] = useState(false);
   const discountPct = Math.round((1 - deal.salePrice / deal.originalPrice) * 100);
   const daysLeft = Math.max(
     0,
@@ -84,25 +75,13 @@ export default function DealCard({ deal, showProgramBadge = true, enableQr = tru
         <span className="text-xs text-neutral-500">{daysLeft === 0 ? 'Ends today' : `${daysLeft}d left`}</span>
       </div>
 
-      <div className="flex items-center gap-2">
-        <ShareButton
-          title={`${deal.title} at ${dispensary.name}`}
-          text={`Check out this deal on ${strain.name} at ${dispensary.name}: ${deal.title} — $${deal.salePrice} (was $${deal.originalPrice}) on Blazed 🌿`}
-          url={shareUrl}
-          label="Share deal"
-        />
-        {enableQr && (
-          <button
-            type="button"
-            onClick={() => setShowQr(true)}
-            className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-          >
-            📷 QR code
-          </button>
-        )}
-      </div>
-
-      {showQr && <DealQrCode deal={deal} onClose={() => setShowQr(false)} />}
+      <ShareButton
+        title={`${deal.title} at ${dispensary.name}`}
+        text={`Check out this deal on ${strain.name} at ${dispensary.name}: ${deal.title} — $${deal.salePrice} (was $${deal.originalPrice}) on Blazed 🌿`}
+        url={shareUrl}
+        label="Share deal"
+        className="self-start"
+      />
     </div>
   );
 }

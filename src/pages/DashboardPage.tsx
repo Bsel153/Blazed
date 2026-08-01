@@ -76,7 +76,7 @@ export default function DashboardPage() {
       </div>
       <p className="text-neutral-500 mb-6">
         {myPurchases.length === 0
-          ? "No purchases logged yet — scan a deal's QR code to get started."
+          ? 'No purchases logged yet — scan your receipt QR code to get started.'
           : "Built from purchases you've scanned and logged"}
       </p>
 

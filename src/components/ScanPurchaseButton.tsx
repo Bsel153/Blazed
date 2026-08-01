@@ -12,7 +12,7 @@ export default function ScanPurchaseButton() {
     setScanning(false);
     const deal = deals.find((d) => d.id === dealId);
     if (!deal) {
-      setToast({ kind: 'error', text: "That code doesn't match a current deal." });
+      setToast({ kind: 'error', text: "That code doesn't match a known purchase." });
     } else {
       const { error } = await logPurchase(deal);
       if (error) {
