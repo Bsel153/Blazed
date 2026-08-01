@@ -58,3 +58,12 @@ export interface User {
   name: string;
   avatarColor: string;
 }
+
+export interface SpecialtyDeal {
+  id: string;
+  dispensaryId: string;
+  title: string;
+  description: string;
+  pointsRequired: number;
+  expiresAt: string;
+}

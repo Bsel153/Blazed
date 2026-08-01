@@ -1,13 +1,29 @@
 import { useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { dispensaries, deals, reviews, getStrain, getUser } from '../data/mockData';
+import { dispensaries, deals, reviews, purchases, currentUser, getStrain, getUser } from '../data/mockData';
 import DealCard from '../components/DealCard';
+import RecommendedStrains from '../components/RecommendedStrains';
+import { useLikes } from '../context/LikesContext';
 
 export default function DispensaryDetailPage() {
   const { id } = useParams<{ id: string }>();
   const dispensary = dispensaries.find((d) => d.id === id);
+  const { likedStrainIds } = useLikes();
 
   const dispensaryDeals = useMemo(() => deals.filter((d) => d.dispensaryId === id), [id]);
+  const availableStrains = useMemo(() => {
+    const seen = new Map();
+    dispensaryDeals.forEach((d) => {
+      const strain = getStrain(d.strainId);
+      seen.set(strain.id, strain);
+    });
+    return [...seen.values()];
+  }, [dispensaryDeals]);
+  const likedStrains = useMemo(() => likedStrainIds.map(getStrain), [likedStrainIds]);
+  const hasVisited = useMemo(
+    () => purchases.some((p) => p.userId === currentUser.id && p.dispensaryId === id),
+    [id],
+  );
   const dispensaryReviews = useMemo(
     () =>
       reviews
@@ -63,6 +79,13 @@ export default function DispensaryDetailPage() {
           )}
         </div>
       </div>
+
+      <RecommendedStrains
+        dispensaryName={dispensary.name}
+        likedStrains={likedStrains}
+        availableStrains={availableStrains}
+        hasVisited={hasVisited}
+      />
 
       <div className="mb-8">
         <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-3">
