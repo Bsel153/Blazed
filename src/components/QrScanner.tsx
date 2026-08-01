@@ -60,7 +60,7 @@ export default function QrScanner({ onDetect, onClose }: QrScannerProps) {
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/70 px-4">
       <div className="bg-white dark:bg-neutral-900 rounded-xl p-4 max-w-xs w-full text-center">
-        <p className="font-medium text-neutral-900 dark:text-neutral-100 mb-3">Scan your receipt QR code</p>
+        <p className="font-medium text-neutral-900 dark:text-neutral-100 mb-3">Scan the QR code on your product</p>
         {error ? (
           <p className="text-sm text-red-600 dark:text-red-400 mb-3">{error}</p>
         ) : (
