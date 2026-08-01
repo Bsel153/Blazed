@@ -1,9 +1,10 @@
 import { useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { dispensaries, deals, reviews, purchases, currentUser, getStrain, getUser } from '../data/mockData';
+import { dispensaries, deals, reviews, getStrain, getUser } from '../data/mockData';
 import DealCard from '../components/DealCard';
 import RecommendedStrains from '../components/RecommendedStrains';
 import { useLikes } from '../context/LikesContext';
+import { usePurchases } from '../context/PurchasesContext';
 
 export default function DispensaryDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -20,10 +21,8 @@ export default function DispensaryDetailPage() {
     return [...seen.values()];
   }, [dispensaryDeals]);
   const likedStrains = useMemo(() => likedStrainIds.map(getStrain), [likedStrainIds]);
-  const hasVisited = useMemo(
-    () => purchases.some((p) => p.userId === currentUser.id && p.dispensaryId === id),
-    [id],
-  );
+  const { purchases } = usePurchases();
+  const hasVisited = useMemo(() => purchases.some((p) => p.dispensaryId === id), [purchases, id]);
   const dispensaryReviews = useMemo(
     () =>
       reviews

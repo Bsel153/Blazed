@@ -11,22 +11,21 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { purchases, reviews, currentUser, getStrain, getDispensary, getUser } from '../data/mockData';
+import { reviews, currentUser, getStrain, getDispensary, getUser } from '../data/mockData';
 import StrainTypeBadge from '../components/StrainTypeBadge';
 import LikeButton from '../components/LikeButton';
 import ShareButton from '../components/ShareButton';
 import { useLikes } from '../context/LikesContext';
+import { usePurchases } from '../context/PurchasesContext';
+import ScanPurchaseButton from '../components/ScanPurchaseButton';
 
 const GREEN = '#16a34a';
 
 export default function DashboardPage() {
   const { likedStrainIds } = useLikes();
   const likedStrains = useMemo(() => likedStrainIds.map(getStrain), [likedStrainIds]);
+  const { purchases: myPurchases } = usePurchases();
 
-  const myPurchases = useMemo(
-    () => purchases.filter((p) => p.userId === currentUser.id),
-    [],
-  );
   const myReviews = useMemo(
     () =>
       reviews
@@ -40,7 +39,7 @@ export default function DashboardPage() {
     myPurchases.forEach((p) => {
       const entry = counts.get(p.strainId) ?? { count: 0, grams: 0 };
       entry.count += 1;
-      entry.grams += p.quantityGrams;
+      entry.grams += p.quantityGrams ?? 0;
       counts.set(p.strainId, entry);
     });
     return [...counts.entries()]
@@ -59,7 +58,7 @@ export default function DashboardPage() {
       months.set(d.toLocaleDateString('en-US', { month: 'short' }), 0);
     }
     myPurchases.forEach((p) => {
-      const d = new Date(p.date);
+      const d = new Date(p.createdAt);
       const key = d.toLocaleDateString('en-US', { month: 'short' });
       if (months.has(key)) months.set(key, (months.get(key) ?? 0) + 1);
     });
@@ -67,12 +66,19 @@ export default function DashboardPage() {
   }, [myPurchases]);
 
   const totalSpend = myPurchases.reduce((sum, p) => sum + p.price, 0);
-  const totalGrams = myPurchases.reduce((sum, p) => sum + p.quantityGrams, 0);
+  const totalGrams = myPurchases.reduce((sum, p) => sum + (p.quantityGrams ?? 0), 0);
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">
-      <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-1">My Stats</h1>
-      <p className="text-neutral-500 mb-6">Synced from your dispensary purchase history</p>
+      <div className="flex items-center justify-between mb-1">
+        <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">My Stats</h1>
+        <ScanPurchaseButton />
+      </div>
+      <p className="text-neutral-500 mb-6">
+        {myPurchases.length === 0
+          ? 'No purchases logged yet — scan a QR code from your receipt or the product\'s packaging to get started.'
+          : "Built from purchases you've scanned and logged"}
+      </p>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
         <StatTile label="Purchases" value={myPurchases.length.toString()} />

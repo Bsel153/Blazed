@@ -1,8 +1,10 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import { detectStateFromCoords, detectStateFromIP, getCurrentPosition } from '../lib/geo';
+import { supabase } from '../lib/supabaseClient';
+import { useAuth } from './AuthContext';
 
 export type DetectionStatus = 'idle' | 'detecting' | 'detected' | 'unavailable';
-export type DetectionMethod = 'gps' | 'ip' | null;
+export type DetectionMethod = 'gps' | 'ip' | 'saved' | null;
 
 interface LocationContextValue {
   stateCode: string | null; // null = "all states"
@@ -17,6 +19,7 @@ interface LocationContextValue {
 const LocationContext = createContext<LocationContextValue | null>(null);
 
 export function LocationProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
   const [stateCode, setStateCodeRaw] = useState<string | null>(null);
   const [city, setCity] = useState<string | null>(null);
   const [status, setStatus] = useState<DetectionStatus>('idle');
@@ -57,15 +60,46 @@ export function LocationProvider({ children }: { children: ReactNode }) {
       .catch(viaIP);
   }, []);
 
+  // On login, use the user's saved location if we have one; otherwise fall
+  // back to live GPS/IP detection (and save the result for next time).
   useEffect(() => {
-    detect();
-  }, [detect]);
+    if (!user) return;
+    let cancelled = false;
+
+    supabase
+      .from('profiles')
+      .select('state_code, city')
+      .eq('user_id', user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (cancelled) return;
+        if (data?.state_code) {
+          setStateCodeRaw(data.state_code);
+          setCity(data.city);
+          setMethod('saved');
+          setStatus('detected');
+        } else {
+          detect();
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user, detect]);
+
+  // Persist whenever the resolved location changes (detected or manually overridden).
+  useEffect(() => {
+    if (!user || status !== 'detected') return;
+    supabase.from('profiles').upsert({ user_id: user.id, state_code: stateCode, city, updated_at: new Date().toISOString() }).then();
+  }, [user, status, stateCode, city]);
 
   const setStateCode = useCallback((code: string | null) => {
     setStateCodeRaw(code);
     setCity(null);
     setMethod(null);
     setIsManualOverride(true);
+    setStatus('detected');
   }, []);
 
   return (

@@ -1,4 +1,4 @@
-import type { Dispensary, Strain, Deal, Review, Purchase, User, SpecialtyDeal } from '../types';
+import type { Dispensary, Strain, Deal, Review, User, SpecialtyDeal } from '../types';
 
 // Deterministic PRNG so mock data is stable across reloads.
 function mulberry32(seed: number) {
@@ -861,21 +861,6 @@ strains.forEach((strain) => {
   }
 });
 
-// Simulated sync from dispensary POS/loyalty systems for the current user.
-export const purchases: Purchase[] = Array.from({ length: 34 }).map((_, i) => {
-  const strain = pick(strains);
-  const dispensary = pick(dispensaries);
-  return {
-    id: `pur-${i + 1}`,
-    userId: currentUser.id,
-    dispensaryId: dispensary.id,
-    strainId: strain.id,
-    date: pastDate(randInt(0, 180)),
-    quantityGrams: pick([1, 3.5, 3.5, 7, 14]),
-    price: randInt(15, 90),
-  };
-});
-
 // Loyalty tiers offered by each dispensary's rewards program.
 const specialtyDealTemplates = [
   { title: 'Free Preroll', description: 'Redeem a free preroll of your choice.', pointsRequired: 100 },
@@ -895,12 +880,6 @@ export const specialtyDeals: SpecialtyDeal[] = dispensaries.flatMap((d) =>
     expiresAt: futureDate(randInt(14, 60)),
   })),
 );
-
-// Dispensary loyalty points earn 1:1 with dollars spent there, synced from POS.
-export const getDispensaryPoints = (dispensaryId: string, userId = currentUser.id) =>
-  purchases
-    .filter((p) => p.dispensaryId === dispensaryId && p.userId === userId)
-    .reduce((sum, p) => sum + Math.round(p.price), 0);
 
 export const getDispensary = (id: string) => dispensaries.find((d) => d.id === id)!;
 export const getStrain = (id: string) => strains.find((s) => s.id === id)!;
