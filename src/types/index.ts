@@ -43,20 +43,23 @@ export interface Review {
   date: string;
 }
 
-export interface Purchase {
-  id: string;
-  userId: string;
-  dispensaryId: string;
-  strainId: string;
-  date: string;
-  quantityGrams: number;
-  price: number;
-}
-
 export interface User {
   id: string;
   name: string;
   avatarColor: string;
+}
+
+// A real purchase logged by scanning a deal's QR code, stored per-user in Supabase.
+export interface LoggedPurchase {
+  id: string;
+  userId: string;
+  dispensaryId: string;
+  strainId: string;
+  category: Deal['category'];
+  title: string;
+  price: number;
+  quantityGrams: number | null;
+  createdAt: string;
 }
 
 export interface SpecialtyDeal {
