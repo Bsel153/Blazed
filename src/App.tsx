@@ -4,6 +4,7 @@ import DealsPage from './pages/DealsPage';
 import StrainDetailPage from './pages/StrainDetailPage';
 import DispensaryDetailPage from './pages/DispensaryDetailPage';
 import DashboardPage from './pages/DashboardPage';
+import RewardsPage from './pages/RewardsPage';
 import { LocationProvider } from './context/LocationContext';
 import { LikesProvider } from './context/LikesContext';
 
@@ -21,6 +22,7 @@ export default function App() {
               <Route path="/strain/:id" element={<StrainDetailPage />} />
               <Route path="/dispensary/:id" element={<DispensaryDetailPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/rewards" element={<RewardsPage />} />
             </Routes>
           </div>
         </BrowserRouter>
