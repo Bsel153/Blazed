@@ -6,16 +6,20 @@ import DispensaryDetailPage from './pages/DispensaryDetailPage';
 import DashboardPage from './pages/DashboardPage';
 import RewardsPage from './pages/RewardsPage';
 import LoginPage from './pages/LoginPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import { LocationProvider } from './context/LocationContext';
 import { LikesProvider } from './context/LikesContext';
 import { PurchasesProvider } from './context/PurchasesContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 function AuthGate({ children }: { children: React.ReactNode }) {
-  const { session, loading } = useAuth();
+  const { session, loading, passwordRecovery } = useAuth();
 
   if (loading) {
     return <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950" />;
+  }
+  if (passwordRecovery) {
+    return <ResetPasswordPage />;
   }
   if (!session) {
     return <LoginPage />;
